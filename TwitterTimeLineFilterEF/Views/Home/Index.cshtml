@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<form asp-action="FilterData" method="post">
+    <table class="table table-sm">
+        <tbody>
+            @{ foreach (var tag in ViewBag.tags)
+                {
+                    <tr>
+                        <td>@tag.Name</td>
+                        <td>
+                            <input name="AreChecked" type="checkbox" value="@tag.Name" />
+                        </td>
+                    </tr>
+                } }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-outline-secondary">Submit</button>
+</form>
+
+<div >
+    @Html.Raw(ViewBag.tweets)
+</div>

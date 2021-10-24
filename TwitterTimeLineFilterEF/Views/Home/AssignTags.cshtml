@@ -1,0 +1,40 @@
+﻿@model TwitterUser
+@{//write friends to database
+}
+
+<div>
+    <table class="table table-striped">
+        <tbody>
+            @foreach (var item in ViewBag.friends)
+            {
+                <tr>
+                    <td><a href=@string.Format("https://twitter.com/{0}", item.ScreenName)><img style="border-radius: 50%" src=@item.ProfileImageUrl alt="Avatar"></a> </td>
+                    <td><b>@item.Name</b><br />
+                    @@@item.ScreenName</td>
+
+                    <td>
+                         tags will go here in form of buttons
+                    </td>
+
+                    <td>
+                        <form asp-action="EditUserTags" method="post">
+                            <div class="input-group">
+                                <input hidden name="Name" value=@item.ScreenName class="form-control" />
+                                <select name="NewTag" class="custom-select" id="inputGroupSelect04">
+                                    <option selected>Assign a tag</option>
+                                    @{ foreach (var tag in ViewBag.tags)
+                                        {
+                                            <option value="@tag.Id">@tag.Name</option>
+                                        }}
+                                </select>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="submit">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </td>
+                </tr>
+            }
+    </table>
+</div>
