@@ -20,7 +20,8 @@ namespace TwitterTimeLineFilterEF
 		private static async Task MainAsync()
 		{
 			TwitterData tdObj = new();
-			await tdObj.getTweets();
+			await tdObj.GetTweets();
+			await tdObj.GetFriends();
 			CreateHostBuilder().Build().Run();
 		}
 

@@ -5,27 +5,41 @@
 <div>
     <table class="table table-striped">
         <tbody>
-            @foreach (var item in ViewBag.friends)
+            @foreach (var user in ViewBag.users)
             {
                 <tr>
-                    <td><a href=@string.Format("https://twitter.com/{0}", item.ScreenName)><img style="border-radius: 50%" src=@item.ProfileImageUrl alt="Avatar"></a> </td>
-                    <td><b>@item.Name</b><br />
-                    @@@item.ScreenName</td>
-
+                    <td><a href=@string.Format("https://twitter.com/{0}", user.Name)><img style="border-radius: 50%" src=@user.ProfileImageUrl alt="Avatar"></a> </td>
                     <td>
-                         tags will go here in form of buttons
+                        <b>@user.DisplayName</b><br />
+                        @@@user.Name
                     </td>
 
                     <td>
-                        <form asp-action="EditUserTags" method="post">
+                        <form asp-action="UnassignTagFromUser" method="post">
+                            <input hidden name="UserID" value=@user.Id class="form-control" />
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                @foreach (var usertag in user.Tags)
+                                {
+                                    <button name="TagName" value="@usertag.Name" type="submit" class="btn btn-outline-danger btn-sm">@usertag.Name</button>
+                                }
+                            </div>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form asp-action="AssignTagToUser" method="post">
                             <div class="input-group">
-                                <input hidden name="Name" value=@item.ScreenName class="form-control" />
+                                <input hidden name="Name" value=@user.Name class="form-control" />
                                 <select name="NewTag" class="custom-select" id="inputGroupSelect04">
                                     <option selected>Assign a tag</option>
                                     @{ foreach (var tag in ViewBag.tags)
-                                        {
-                                            <option value="@tag.Id">@tag.Name</option>
-                                        }}
+                                            if (!user.Tags.Contains(tag))
+                                            {
+
+                                                {
+                                                    <option value="@tag.Id">@tag.Name</option>
+                                                }
+                                            }}
                                 </select>
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-secondary" type="submit">Submit</button>

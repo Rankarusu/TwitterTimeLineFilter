@@ -10,6 +10,7 @@ namespace TwitterTimeLineFilterEF.Models
 	{
 		public DbSet<TwitterUser> TwitterUsers { get; set; }
 		public DbSet<UserTag> UserTags { get; set; }
+		public DbSet<Tweet> Tweets { get; set; }
 
 		public string DbPath { get; private set; }
 
@@ -30,12 +31,14 @@ namespace TwitterTimeLineFilterEF.Models
 	public class TwitterUser
 	{
 		public int Id { get; set; }
+		public long TwitterId { get; set; }
 		public string Name { get; set; } //screenname
-
-
+		public string DisplayName { get; set; }
+		public string ProfileImageUrl { get; set; }
 
 		/* EF Relations */
 		public virtual ICollection<UserTag> Tags { get; set; }
+		public virtual ICollection<Tweet> Tweets { get; set; }
 	}
 
 	public class UserTag
@@ -45,6 +48,15 @@ namespace TwitterTimeLineFilterEF.Models
 
 		/* EF Relations */
 		public virtual ICollection<TwitterUser> Users { get; set; }
+	}
+
+	public class Tweet
+	{
+		public int Id { get; set; }
+		public long TweetId { get; set; }
+		public string Html { get; set; }
+
+		public virtual TwitterUser TwitterUser { get; set; }
 	}
 
 }

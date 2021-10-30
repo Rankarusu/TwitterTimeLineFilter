@@ -10,12 +10,12 @@ using TwitterTimeLineFilterEF.Data;
 using TwitterTimeLineFilterEF.Models;
 
 namespace TwitterTimeLineFilterEF.Controllers
-	//TODO: Maybe use partial views
-	//TODO: Bind user model to tag assignment page to and generate delete buttons as tags
-	//TODO: Check if i can keep boxes checked upon reload
-	//TODO: use http properties
-	//TODO: load stuff asynchronously at startup, amybe even into database. makes the rest easier maybe.
-	//TODO: Load friends into db.
+//TODO: Maybe use partial views
+//TODO: Bind user model to tag assignment page to and generate delete buttons as tags
+//TODO: Check if i can keep boxes checked upon reload
+//TODO: use http properties
+//TODO: load stuff asynchronously at startup, amybe even into database. makes the rest easier maybe.
+//TODO: Load friends into db.
 {
 	public class HomeController : Controller
 	{
@@ -35,22 +35,24 @@ namespace TwitterTimeLineFilterEF.Controllers
 				var tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name).ToList(); //woohoo, using LINQ instead of SQL Queries
 
 				ViewBag.tags = tags;
-			}
-			if (tagcount.Count == 0)
-			{
-				ViewBag.tweets = string.Join("\n", TwitterData.ALLTWEETS.Select(x => x.html));
-			}
-			else
-			{
-				List<string> content = new();
-				using (var db = new Models.UserTagContext())
+
+				if (tagcount.Count == 0)
 				{
-					var tags = db.UserTags.Where(x => tagcount.Contains(x.Name)).ToList();
+					ViewBag.tweets = string.Join("\n", db.Tweets.Select(x => x.Html));
+				}
+				else
+				{
+					List<string> content = new();
+
+					tags = db.UserTags.Where(x => tagcount.Contains(x.Name)).ToList();
 					var users = tags.SelectMany(m => m.Users).ToList();
 					content = users.Select(x => x.Name).ToList();
+
+					//var query = TwitterData.ALLTWEETS.Where(x => content.Contains(x.screenname)).Select(x => x.html);
+					//var quarey = db.Tweets.Select(x => content.Contains(x.))
+
+					//ViewBag.tweets = string.Join("\n", query);
 				}
-				var query = TwitterData.ALLTWEETS.Where(x => content.Contains(x.screenname)).Select(x => x.html);
-				ViewBag.tweets = string.Join("\n", query);
 			}
 
 			return View();
@@ -58,13 +60,16 @@ namespace TwitterTimeLineFilterEF.Controllers
 
 		public IActionResult AssignTags()
 		{
-			using (var db = new Models.UserTagContext())
-			{
-				var tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name).ToList(); //woohoo, using LINQ instead of SQL Queries
-				ViewBag.tags = tags;
-			}
-			TwitterData tdObj = new();
-			ViewBag.friends = tdObj.getFriends().Result.OrderBy(x => x.ScreenName);
+			var db = new Models.UserTagContext();
+
+			var tags = db.UserTags.OrderBy(x => x.Name); //woohoo, using LINQ instead of SQL Queries
+			var users = db.TwitterUsers.AsEnumerable().OrderBy(x => x.Name);
+			ViewBag.tags = tags;
+			ViewBag.users = users;
+
+			//TwitterData tdObj = new();
+			//ViewBag.friends = tdObj.GetFriends().Result.OrderBy(x => x.ScreenName);
+
 
 			return View();
 		}
@@ -76,11 +81,9 @@ namespace TwitterTimeLineFilterEF.Controllers
 		public IActionResult EditTags()
 		{
 			var db = new Models.UserTagContext();
-			
 
-				ViewBag.tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name); //woohoo, using LINQ instead of SQL Queries
 
-			
+			ViewBag.tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name); //woohoo, using LINQ instead of SQL Queries
 
 			return View();
 		}
@@ -97,6 +100,7 @@ namespace TwitterTimeLineFilterEF.Controllers
 			}
 			return RedirectToAction("EditTags");
 		}
+
 		public IActionResult DeleteTag(int Id)
 		{
 			using (var db = new Models.UserTagContext())
@@ -115,7 +119,7 @@ namespace TwitterTimeLineFilterEF.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult EditUserTags(string Name, int NewTag)
+		public IActionResult AssignTagToUser(string Name, int NewTag)
 		{
 			using (var db = new Models.UserTagContext())
 			{
@@ -138,11 +142,25 @@ namespace TwitterTimeLineFilterEF.Controllers
 			return RedirectToAction("AssignTags");
 		}
 
+		[HttpPost]
+		public IActionResult UnassignTagFromUser(string TagName, int UserID)
+		{
+			using (var db = new Models.UserTagContext())
+			{
+				var usr = db.TwitterUsers.Find(UserID);
+				var tag = db.UserTags.FirstOrDefault(x => x.Name == TagName);
+
+				usr.Tags.Remove(tag);
+				db.SaveChanges();
+			}
+			return RedirectToAction("AssignTags");
+		}
+
 
 		[HttpPost]
 		public IActionResult FilterData(List<string> AreChecked)
 		{
-			return RedirectToAction("Index", new { AreChecked = AreChecked});
+			return RedirectToAction("Index", new { AreChecked = AreChecked });
 		}
 
 
