@@ -1,4 +1,5 @@
-﻿@{
+﻿@model TwitterUser
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -19,6 +20,13 @@
     <button type="submit" class="btn btn-outline-secondary">Submit</button>
 </form>
 
-<div >
-    @Html.Raw(ViewBag.tweets)
+<p></p>
+<hr />
+
+<div>
+    @foreach (var tweet in ViewBag.tweets)
+    {
+        @Html.Raw(tweet.Html);
+    }
+
 </div>

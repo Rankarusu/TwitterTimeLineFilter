@@ -15,7 +15,7 @@ namespace TwitterTimeLineFilterEF.Controllers
 //TODO: Check if i can keep boxes checked upon reload
 //TODO: use http properties
 //TODO: load stuff asynchronously at startup, amybe even into database. makes the rest easier maybe.
-//TODO: Load friends into db.
+
 {
 	public class HomeController : Controller
 	{
@@ -28,33 +28,25 @@ namespace TwitterTimeLineFilterEF.Controllers
 		//View Routing
 		public IActionResult Index(List<string> AreChecked)
 		{
-			var tagcount = AreChecked;
+			var checkedTags = AreChecked;
 
 			using (var db = new Models.UserTagContext())
 			{
-				var tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name).ToList(); //woohoo, using LINQ instead of SQL Queries
+				var allTags = db.UserTags.AsEnumerable().OrderBy(x => x.Name).ToList(); //woohoo, using LINQ instead of SQL Queries
+				ViewBag.tags = allTags; //all tags
 
-				ViewBag.tags = tags;
-
-				if (tagcount.Count == 0)
+				if (checkedTags.Count == 0)
 				{
-					ViewBag.tweets = string.Join("\n", db.Tweets.Select(x => x.Html));
+					ViewBag.tweets = db.Tweets.Take(30).ToList(); //display all tweets when nothing is checked
 				}
 				else
 				{
-					List<string> content = new();
+					var selectedTags = db.UserTags.Where(x => checkedTags.Contains(x.Name));
+					var users = selectedTags.SelectMany(m => m.Users);
 
-					tags = db.UserTags.Where(x => tagcount.Contains(x.Name)).ToList();
-					var users = tags.SelectMany(m => m.Users).ToList();
-					content = users.Select(x => x.Name).ToList();
-
-					//var query = TwitterData.ALLTWEETS.Where(x => content.Contains(x.screenname)).Select(x => x.html);
-					//var quarey = db.Tweets.Select(x => content.Contains(x.))
-
-					//ViewBag.tweets = string.Join("\n", query);
+					ViewBag.tweets = db.Tweets.Where(x => users.Contains(x.TwitterUser)).Take(30).ToList();
 				}
 			}
-
 			return View();
 		}
 
@@ -62,7 +54,7 @@ namespace TwitterTimeLineFilterEF.Controllers
 		{
 			var db = new Models.UserTagContext();
 
-			var tags = db.UserTags.OrderBy(x => x.Name); //woohoo, using LINQ instead of SQL Queries
+			var tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name); //woohoo, using LINQ instead of SQL Queries
 			var users = db.TwitterUsers.AsEnumerable().OrderBy(x => x.Name);
 			ViewBag.tags = tags;
 			ViewBag.users = users;
@@ -98,7 +90,7 @@ namespace TwitterTimeLineFilterEF.Controllers
 				db.Add(tag);
 				db.SaveChanges();
 			}
-			return RedirectToAction("EditTags");
+			return RedirectToAction("AssignTags");
 		}
 
 		public IActionResult DeleteTag(int Id)
@@ -115,7 +107,7 @@ namespace TwitterTimeLineFilterEF.Controllers
 				db.UserTags.Remove(TagInDb);
 				db.SaveChanges();
 			}
-			return RedirectToAction("EditTags");
+			return RedirectToAction("AssignTags");
 		}
 
 		[HttpPost]

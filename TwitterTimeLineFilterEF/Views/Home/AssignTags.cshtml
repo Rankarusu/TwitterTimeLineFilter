@@ -1,7 +1,37 @@
-﻿@model TwitterUser
-@{//write friends to database
+﻿@model UserTag
+@{
 }
+<div>
 
+    <form asp-action="AddNewTag" method="post">
+        <div class="input-group mb-3">
+            <input asp-for="Name" type="text" class="form-control" placeholder="Add a Tag" aria-label="AddTag" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-outline-secondary">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    @{ foreach (var tag in ViewBag.tags)
+        {
+
+            <div class="btn-group-sm d-inline-flex" role="group" aria-label="Tags">
+                    <form asp-action="FilterData" method="post">
+                        <input hidden name="AreChecked" type="checkbox" checked value="@tag.Name" />
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">@tag.Name</button>
+                    </form>
+
+                <form asp-action="DeleteTag" asp-route-id=@tag.Id>
+                    <button type="submit" class="btn btn-sm btn-danger" title="delete @tag.Name">🗙</button>
+                </form>
+            </div>
+        }}
+
+    <p></p>
+    <hr />
+
+
+</div>
 <div>
     <table class="table table-striped">
         <tbody>
@@ -11,7 +41,7 @@
                     <td><a href=@string.Format("https://twitter.com/{0}", user.Name)><img style="border-radius: 50%" src=@user.ProfileImageUrl alt="Avatar"></a> </td>
                     <td>
                         <b>@user.DisplayName</b><br />
-                        @@@user.Name
+                        <a href=@string.Format("https://twitter.com/{0}", user.Name)> @@@user.Name</a>
                     </td>
 
                     <td>
@@ -20,7 +50,7 @@
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 @foreach (var usertag in user.Tags)
                                 {
-                                    <button name="TagName" value="@usertag.Name" type="submit" class="btn btn-outline-danger btn-sm">@usertag.Name</button>
+                                    <button name="TagName" value="@usertag.Name" type="submit" title="Unassign @usertag.Name from @user.Name" class="btn btn-outline-danger btn-sm">@usertag.Name</button>
                                 }
                             </div>
                         </form>
@@ -35,7 +65,6 @@
                                     @{ foreach (var tag in ViewBag.tags)
                                             if (!user.Tags.Contains(tag))
                                             {
-
                                                 {
                                                     <option value="@tag.Id">@tag.Name</option>
                                                 }
