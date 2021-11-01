@@ -18,18 +18,17 @@
             <div class="btn-group-sm d-inline-flex" role="group" aria-label="Tags">
                     <form asp-action="FilterData" method="post">
                         <input hidden name="AreChecked" type="checkbox" checked value="@tag.Name" />
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">@tag.Name</button>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" style="border-top-right-radius:0; border-bottom-right-radius:0">@tag.Name</button>
                     </form>
 
                 <form asp-action="DeleteTag" asp-route-id=@tag.Id>
-                    <button type="submit" class="btn btn-sm btn-danger" title="delete @tag.Name">🗙</button>
+                    <button type="submit" class="btn btn-sm btn-danger" title="delete @tag.Name" style="border-top-left-radius:0; border-bottom-left-radius:0">🗙</button>
                 </form>
             </div>
         }}
 
     <p></p>
     <hr />
-
 
 </div>
 <div>

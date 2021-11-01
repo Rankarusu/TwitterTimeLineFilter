@@ -11,10 +11,11 @@ using TwitterTimeLineFilterEF.Models;
 
 namespace TwitterTimeLineFilterEF.Controllers
 //TODO: Maybe use partial views
-//TODO: Bind user model to tag assignment page to and generate delete buttons as tags
 //TODO: Check if i can keep boxes checked upon reload
 //TODO: use http properties
 //TODO: load stuff asynchronously at startup, amybe even into database. makes the rest easier maybe.
+//TODO: https://blog.dangl.me/archive/handling-datetimeoffset-in-sqlite-with-entity-framework-core/
+//TODO: lazy loading on scroll
 
 {
 	public class HomeController : Controller
