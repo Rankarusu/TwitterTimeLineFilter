@@ -7,6 +7,7 @@ using Tweetinvi;
 using Tweetinvi.Models;
 using TwitterTimelineFilterEF.Data;
 using TwitterTimeLineFilterEF.Models;
+using Tweetinvi.Parameters;
 
 namespace TwitterTimeLineFilterEF.Data
 {
@@ -47,7 +48,10 @@ namespace TwitterTimeLineFilterEF.Data
 		//public async Task<ConcurrentBag<HTMLTweet>> getTweets()
 		public async Task GetTweets()
 		{
-			var homeTimelineTweets = await this.userClient.Timelines.GetHomeTimelineAsync(); //all tweets on your timeline
+			var parameters = new GetHomeTimelineParameters();
+			parameters.ExcludeReplies = true; //i dont want to see replies
+
+			var homeTimelineTweets = await this.userClient.Timelines.GetHomeTimelineAsync(parameters); //all tweets on your timeline
 			Console.WriteLine(homeTimelineTweets.Length + "Tweets found.");
 
 			using (var db = new Models.UserTagContext())
@@ -70,6 +74,7 @@ namespace TwitterTimeLineFilterEF.Data
 
 						newTweet.TweetId = tweet.Id;
 						newTweet.TwitterUser = db.TwitterUsers.SingleOrDefault(x => x.TwitterId == tweet.CreatedBy.Id);
+						newTweet.DateTime = tweet.CreatedAt.ToUnixTimeSeconds();
 						await db.Tweets.AddAsync(newTweet);
 
 
