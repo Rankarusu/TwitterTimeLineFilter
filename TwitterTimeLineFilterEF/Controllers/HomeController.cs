@@ -1,26 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using TwitterTimeLineFilterEF.Data;
 using TwitterTimeLineFilterEF.Models;
 
 namespace TwitterTimeLineFilterEF.Controllers
 //TODO: Maybe use partial views
-//TODO: Check if i can keep boxes checked upon reload
 //TODO: use http properties
-//TODO: load stuff asynchronously at startup, amybe even into database. makes the rest easier maybe.
-//TODO: https://blog.dangl.me/archive/handling-datetimeoffset-in-sqlite-with-entity-framework-core/
 //TODO: lazy loading on scroll
 
 {
 	public class HomeController : Controller
 	{
 		private readonly ILogger<HomeController> _logger;
+
 		public HomeController(ILogger<HomeController> logger)
 		{
 			_logger = logger;
@@ -30,25 +25,57 @@ namespace TwitterTimeLineFilterEF.Controllers
 		public IActionResult Index(List<string> AreChecked)
 		{
 			var checkedTags = AreChecked;
+			ViewBag.checkedTags = checkedTags;
 
-			using (var db = new Models.UserTagContext())
+			var db = new Models.UserTagContext();
+
+			var allTags = db.UserTags.AsEnumerable().OrderBy(x => x.Name).ToList(); //woohoo, using LINQ instead of SQL Queries
+			ViewBag.tags = allTags; //all tags
+
+			if (checkedTags.Count == 0) //we still need this for the initial 8 posts
 			{
-				var allTags = db.UserTags.AsEnumerable().OrderBy(x => x.Name).ToList(); //woohoo, using LINQ instead of SQL Queries
-				ViewBag.tags = allTags; //all tags
-
-				if (checkedTags.Count == 0)
-				{
-					ViewBag.tweets = db.Tweets.Take(30).ToList(); //display all tweets when nothing is checked
-				}
-				else
-				{
-					var selectedTags = db.UserTags.Where(x => checkedTags.Contains(x.Name));
-					var users = selectedTags.SelectMany(m => m.Users);
-
-					ViewBag.tweets = db.Tweets.Where(x => users.Contains(x.TwitterUser)).Take(30).ToList();
-				}
+				ViewBag.tweets = db.Tweets.Take(8).ToList().OrderByDescending(x => x.DateTime); //display all tweets when nothing is checked
 			}
+			else
+			{
+				var selectedTags = db.UserTags.Where(x => checkedTags.Contains(x.Name));
+				var users = selectedTags.SelectMany(m => m.Users);
+
+				ViewBag.tweets = db.Tweets.Where(x => users.Contains(x.TwitterUser)).OrderByDescending(x => x.DateTime).Take(5);
+			}
+
 			return View();
+		}
+		public IActionResult LoadTweets(long after, List<string> AreChecked)
+		{
+			var db = new Models.UserTagContext();
+			var checkedTags = AreChecked;
+			ViewBag.checkedTags = checkedTags;
+
+			if (checkedTags.Count == 0)
+			{
+				ViewBag.tweets = db.Tweets
+				.OrderByDescending(x => x.DateTime)
+				.Where(t => t.DateTime < after)
+				.Take(8)
+				.ToList();
+			}
+			else
+			{
+				var selectedTags = db.UserTags.Where(x => checkedTags.Contains(x.Name));
+				var users = selectedTags.SelectMany(m => m.Users);
+
+				ViewBag.tweets = db.Tweets
+					.OrderByDescending(x => x.DateTime)
+					.Where(x => users.Contains(x.TwitterUser))
+					.Where(t => t.DateTime < after)
+					.Take(8)
+					.ToList();
+			}
+
+
+
+			return PartialView("_Tweet", ViewBag.tweets);
 		}
 
 		public IActionResult AssignTags()
@@ -67,17 +94,14 @@ namespace TwitterTimeLineFilterEF.Controllers
 			return View();
 		}
 
-
-
 		//Methods
 
 		public IActionResult EditTags()
 		{
 			var db = new Models.UserTagContext();
 
-
 			ViewBag.tags = db.UserTags.AsEnumerable().OrderBy(x => x.Name); //woohoo, using LINQ instead of SQL Queries
-
+			db.Dispose();
 			return View();
 		}
 
@@ -149,12 +173,15 @@ namespace TwitterTimeLineFilterEF.Controllers
 			return RedirectToAction("AssignTags");
 		}
 
-
 		[HttpPost]
 		public IActionResult FilterData(List<string> AreChecked)
 		{
 			return RedirectToAction("Index", new { AreChecked = AreChecked });
 		}
+
+
+
+
 
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

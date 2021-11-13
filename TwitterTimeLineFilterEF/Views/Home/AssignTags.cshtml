@@ -1,43 +1,48 @@
 ﻿@model UserTag
 @{
 }
-<div>
 
-    <form asp-action="AddNewTag" method="post">
-        <div class="input-group mb-3">
-            <input asp-for="Name" type="text" class="form-control" placeholder="Add a Tag" aria-label="AddTag" aria-describedby="basic-addon2">
-            <div class="input-group-append">
-                <button type="submit" class="btn btn-outline-secondary">Submit</button>
-            </div>
+<form asp-action="AddNewTag" method="post">
+    <div class=" = input-group mb-3">
+        <input asp-for="Name" type="text" class="form-control" placeholder="Add a Tag" aria-label="AddTag" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">Submit</button>
         </div>
-    </form>
+    </div>
+</form>
 
-    @{ foreach (var tag in ViewBag.tags)
-        {
 
-            <div class="btn-group-sm d-inline-flex" role="group" aria-label="Tags">
-                    <form asp-action="FilterData" method="post">
-                        <input hidden name="AreChecked" type="checkbox" checked value="@tag.Name" />
-                        <button type="submit" class="btn btn-sm btn-outline-secondary" style="border-top-right-radius:0; border-bottom-right-radius:0">@tag.Name</button>
-                    </form>
+@{ foreach (var tag in ViewBag.tags)
+    {
 
-                <form asp-action="DeleteTag" asp-route-id=@tag.Id>
-                    <button type="submit" class="btn btn-sm btn-danger" title="delete @tag.Name" style="border-top-left-radius:0; border-bottom-left-radius:0">🗙</button>
-                </form>
-            </div>
-        }}
+        <div class="btn-group-sm d-inline-flex" role="group" aria-label="Tags">
+            <form asp-action="FilterData" method="post">
+                <input hidden name="AreChecked" type="checkbox" checked value="@tag.Name" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                        style="border-top-right-radius:0; border-bottom-right-radius:0; border-top-left-radius:15px; border-bottom-left-radius:15px">
+                    @tag.Name
+                </button>
+            </form>
 
-    <p></p>
-    <hr />
+            <form asp-action="DeleteTag" asp-route-id=@tag.Id>
+                <button type="submit" class="btn btn-sm btn-danger" title="delete @tag.Name"
+                        style="border-top-left-radius:0; border-bottom-left-radius:0;  border-top-right-radius:15px; border-bottom-right-radius:15px">
+                    🗙
+                </button>
+            </form>
+        </div>
+    }}
 
-</div>
+<p></p>
+<hr />
+
 <div>
     <table class="table table-striped">
         <tbody>
             @foreach (var user in ViewBag.users)
             {
                 <tr>
-                    <td><a href=@string.Format("https://twitter.com/{0}", user.Name)><img style="border-radius: 50%" src=@user.ProfileImageUrl alt="Avatar"></a> </td>
+                    <td width="50px"><a href=@string.Format("https://twitter.com/{0}", user.Name)><img style="border-radius: 50%" src=@user.ProfileImageUrl alt="Avatar"></a> </td>
                     <td>
                         <b>@user.DisplayName</b><br />
                         <a href=@string.Format("https://twitter.com/{0}", user.Name)> @@@user.Name</a>

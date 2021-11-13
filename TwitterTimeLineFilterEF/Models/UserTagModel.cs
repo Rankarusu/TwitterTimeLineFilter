@@ -55,6 +55,7 @@ namespace TwitterTimeLineFilterEF.Models
 		public int Id { get; set; }
 		public long TweetId { get; set; }
 		public string Html { get; set; }
+		public long DateTime { get; set; }
 
 		public virtual TwitterUser TwitterUser { get; set; }
 	}

@@ -1,32 +1,37 @@
 ﻿@model TwitterUser
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
-
-<form asp-action="FilterData" method="post">
-    <table class="table table-sm">
-        <tbody>
-            @{ foreach (var tag in ViewBag.tags)
-                {
-                    <tr>
-                        <td>@tag.Name</td>
-                        <td>
-                            <input name="AreChecked" type="checkbox" value="@tag.Name" />
-                        </td>
-                    </tr>
-                } }
-        </tbody>
-    </table>
-    <button type="submit" class="btn btn-outline-secondary">Submit</button>
-</form>
+<div>
+    <form asp-action="FilterData" method="post">
+        <table class="table table-sm">
+            <tbody>
+                @{ foreach (var tag in ViewBag.tags)
+                    {
+                        <tr>
+                            <td>@tag.Name</td>
+                            <td>
+                                @{ if (ViewBag.checkedTags.Contains(tag.Name))
+                                    {
+                                        <input name="AreChecked" type="checkbox" value="@tag.Name" checked />
+                                    }
+                                    else
+                                    {
+                                        <input name="AreChecked" type="checkbox" value="@tag.Name" />
+                                    } }
+                            </td>
+                        </tr>
+                    } }
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-outline-secondary">Submit</button>
+    </form>
+</div>
 
 <p></p>
 <hr />
 
 <div>
-    @foreach (var tweet in ViewBag.tweets)
-    {
-        @Html.Raw(tweet.Html);
-    }
-
+    <partial name="_Tweet" model="ViewBag.Tweets" 
+             />
 </div>
