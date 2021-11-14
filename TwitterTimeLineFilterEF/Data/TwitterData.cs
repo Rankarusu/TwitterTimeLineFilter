@@ -1,36 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
+using Tweetinvi.Parameters;
 using TwitterTimelineFilterEF.Data;
 using TwitterTimeLineFilterEF.Models;
-using Tweetinvi.Parameters;
 
 namespace TwitterTimeLineFilterEF.Data
 {
-	//class HTMLTweet //a calls to hold all out relevant data
-	//{
-	//	public string id { get; set; }
-	//	public string screenname { get; set; }
-	//	public string html { get; set; }
-
-	//	public HTMLTweet(string id, string screenname, string html)
-	//	{
-	//		this.id = id;
-	//		this.screenname = screenname;
-	//		this.html = html;
-	//	}
-	//}
-	class TwitterData
+	internal class TwitterData
 	{
 		public const int AMOUNT_OF_TWEETS = 0;
 		public IAuthenticatedUser user;
 		public TwitterClient userClient;
 		public string username;
-		//public static ConcurrentBag<HTMLTweet> ALLTWEETS = new();
 
 		public TwitterData()
 		{
@@ -44,8 +28,6 @@ namespace TwitterTimeLineFilterEF.Data
 		/// Gets a number of tweets from your home timeline
 		/// </summary>
 		/// <returns></returns>
-
-		//public async Task<ConcurrentBag<HTMLTweet>> getTweets()
 		public async Task GetTweets()
 		{
 			var parameters = new GetHomeTimelineParameters();
@@ -75,24 +57,16 @@ namespace TwitterTimeLineFilterEF.Data
 						newTweet.TweetId = tweet.Id;
 						newTweet.TwitterUser = db.TwitterUsers.SingleOrDefault(x => x.TwitterId == tweet.CreatedBy.Id);
 						newTweet.DateTime = tweet.CreatedAt.ToUnixTimeSeconds();
+						newTweet.IsRetweet = tweet.IsRetweet;
 						await db.Tweets.AddAsync(newTweet);
-
-
-						//var oEmbedTweet = await userClient.Tweets.GetOEmbedTweetAsync(homeTimelineTweets[i]);
-						//var id = homeTimelineTweets[i].IdStr;
-						//var screenname = homeTimelineTweets[i].CreatedBy.ScreenName;
-						//HTMLTweet htmltweetObj = new(id, screenname, oEmbedTweet.HTML);
-						//ALLTWEETS.Add(htmltweetObj);
 					}
 				}
-				await db.SaveChangesAsync();
+				await db.SaveChangesAsync(); //TODO:maybe delete old tweets after a while
 			}
-			//return ALLTWEETS;
 		}
 
-
 		/// <summary>
-		/// Syncs database with followed users 
+		/// Syncs database with followed users
 		/// </summary>
 		/// <returns></returns>
 		public async Task GetFriends()
@@ -102,20 +76,27 @@ namespace TwitterTimeLineFilterEF.Data
 			{
 				foreach (var friend in friends)
 				{
-					if (!db.TwitterUsers.Any(x => x.TwitterId == friend.Id))
-					{ //add user if not already in there
-						TwitterUser newUser = new(); //TODO: try to update existing users an delete the ones unfollowed
+					if (!db.TwitterUsers.Any(x => x.TwitterId == friend.Id)) //add user if not already in there
+					{
+						TwitterUser newUser = new();
 						newUser.TwitterId = friend.Id;
 						newUser.Name = friend.ScreenName;
 						newUser.DisplayName = friend.Name;
 						newUser.ProfileImageUrl = friend.ProfileImageUrl;
 						await db.TwitterUsers.AddAsync(newUser);
 					}
+					else if (db.TwitterUsers.Any(x => x.TwitterId == friend.Id)) //update existing ones.
+					{
+						TwitterUser usr = db.TwitterUsers.First(x => x.TwitterId == friend.Id);
+						usr.TwitterId = friend.Id;
+						usr.Name = friend.ScreenName;
+						usr.DisplayName = friend.Name;
+						usr.ProfileImageUrl = friend.ProfileImageUrl;
+						await db.TwitterUsers.AddAsync(usr);
+					}
 				}
 				await db.SaveChangesAsync();
 			}
-
 		}
 	}
 }
-

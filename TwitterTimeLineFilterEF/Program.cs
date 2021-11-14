@@ -1,10 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TwitterTimeLineFilterEF.Data;
 
@@ -19,10 +14,10 @@ namespace TwitterTimeLineFilterEF
 
 		private static async Task MainAsync()
 		{
+			CreateHostBuilder().Build().Run();
 			TwitterData tdObj = new();
 			await tdObj.GetTweets();
 			await tdObj.GetFriends();
-			CreateHostBuilder().Build().Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder() =>

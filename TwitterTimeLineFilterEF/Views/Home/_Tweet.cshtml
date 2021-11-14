@@ -14,8 +14,10 @@
     }
     <div hx-get="@Url.Action("LoadTweets", "Home", new { after = (Model.Last().DateTime), AreChecked = ViewBag.checkedTags })"
          hx-trigger="revealed"
-         hx-swap="outerHTML"></div>
-         <script type="text/javascript">twttr.widgets.load()</script> //render newly added blockquotes to embeds
+         hx-swap="outerHTML">
+    </div>
+    <script type="text/javascript">twttr.widgets.load()</script>
+    //render newly added blockquotes to embeds
 }
 else
 {

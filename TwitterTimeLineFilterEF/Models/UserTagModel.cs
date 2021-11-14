@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TwitterTimeLineFilterEF.Models
 {
@@ -26,38 +23,4 @@ namespace TwitterTimeLineFilterEF.Models
 		protected override void OnConfiguring(DbContextOptionsBuilder options)
 			=> options.UseLazyLoadingProxies().UseSqlite($"Data Source={DbPath}");
 	}
-
-
-	public class TwitterUser
-	{
-		public int Id { get; set; }
-		public long TwitterId { get; set; }
-		public string Name { get; set; } //screenname
-		public string DisplayName { get; set; }
-		public string ProfileImageUrl { get; set; }
-
-		/* EF Relations */
-		public virtual ICollection<UserTag> Tags { get; set; }
-		public virtual ICollection<Tweet> Tweets { get; set; }
-	}
-
-	public class UserTag
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-
-		/* EF Relations */
-		public virtual ICollection<TwitterUser> Users { get; set; }
-	}
-
-	public class Tweet
-	{
-		public int Id { get; set; }
-		public long TweetId { get; set; }
-		public string Html { get; set; }
-		public long DateTime { get; set; }
-
-		public virtual TwitterUser TwitterUser { get; set; }
-	}
-
 }

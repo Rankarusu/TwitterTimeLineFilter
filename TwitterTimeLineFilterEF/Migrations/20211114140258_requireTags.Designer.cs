@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TwitterTimeLineFilterEF.Models;
 
 namespace TwitterTimeLineFilterEF.Migrations
 {
     [DbContext(typeof(UserTagContext))]
-    partial class UserTagContextModelSnapshot : ModelSnapshot
+    [Migration("20211114140258_requireTags")]
+    partial class requireTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,9 +29,6 @@ namespace TwitterTimeLineFilterEF.Migrations
 
                     b.Property<string>("Html")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsRetweet")
-                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TweetId")
                         .HasColumnType("INTEGER");
