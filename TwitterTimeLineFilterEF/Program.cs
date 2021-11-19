@@ -18,6 +18,7 @@ namespace TwitterTimeLineFilterEF
 			TwitterData tdObj = new();
 			await tdObj.GetTweets();
 			await tdObj.GetFriends();
+			await tdObj.CleanupTweets();
 		}
 
 		public static IHostBuilder CreateHostBuilder() =>

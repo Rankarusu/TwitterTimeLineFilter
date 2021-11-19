@@ -1,5 +1,3 @@
-using System;
-
 namespace TwitterTimeLineFilterEF.Models
 {
 	public class ErrorViewModel

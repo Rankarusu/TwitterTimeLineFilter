@@ -11,7 +11,6 @@ namespace TwitterTimeLineFilterEF.Data
 {
 	internal class TwitterData
 	{
-		public const int AMOUNT_OF_TWEETS = 0;
 		public IAuthenticatedUser user;
 		public TwitterClient userClient;
 		public string username;
@@ -61,7 +60,7 @@ namespace TwitterTimeLineFilterEF.Data
 						await db.Tweets.AddAsync(newTweet);
 					}
 				}
-				await db.SaveChangesAsync(); //TODO:maybe delete old tweets after a while
+				await db.SaveChangesAsync();
 			}
 		}
 
@@ -85,7 +84,7 @@ namespace TwitterTimeLineFilterEF.Data
 						newUser.ProfileImageUrl = friend.ProfileImageUrl;
 						await db.TwitterUsers.AddAsync(newUser);
 					}
-					else if (db.TwitterUsers.Any(x => x.TwitterId == friend.Id)) //update existing ones.
+					else //update existing ones.
 					{
 						TwitterUser usr = db.TwitterUsers.First(x => x.TwitterId == friend.Id);
 						usr.TwitterId = friend.Id;
@@ -93,6 +92,34 @@ namespace TwitterTimeLineFilterEF.Data
 						usr.DisplayName = friend.Name;
 						usr.ProfileImageUrl = friend.ProfileImageUrl;
 						await db.TwitterUsers.AddAsync(usr);
+					}
+				}
+				foreach (var user in db.TwitterUsers) //Delete users no longer followed
+				{
+					if (friends.Any(x => x.Id == user.Id))
+					{
+						db.TwitterUsers.Remove(user);
+					}
+				}
+				await db.SaveChangesAsync();
+				Console.WriteLine("finished updating users");
+			}
+		}
+
+		/// <summary>
+		/// delete tweets older than 14 days from the database
+		/// </summary>
+		/// <returns></returns>
+		public async Task CleanupTweets()
+		{
+			var twoWeeksAgo = DateTimeOffset.Now.AddDays(-14).ToUnixTimeSeconds();
+			using (var db = new Models.UserTagContext())
+			{
+				foreach (var tweet in db.Tweets)
+				{
+					if (tweet.DateTime < twoWeeksAgo)
+					{
+						db.Remove(tweet);
 					}
 				}
 				await db.SaveChangesAsync();
