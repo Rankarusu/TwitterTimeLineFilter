@@ -34,26 +34,45 @@ namespace TwitterTimeLineFilterEF.Controllers
 
 			if (checkedTags.Count == 0) //we still need this for the initial 8 posts
 			{
-				tweetsToReturn = db.Tweets
-					.OrderByDescending(x => x.DateTime) //display all tweets when nothing is checked
-					.Take(8)
-					.ToList();
+				if (!showRetweets)
+				{
+					tweetsToReturn = db.Tweets
+						.Where(x => x.IsRetweet == false)
+						.OrderByDescending(x => x.DateTime) //display all tweets when nothing is checked
+						.Take(8)
+						.ToList();
+				}
+				else
+				{
+					tweetsToReturn = db.Tweets
+						.OrderByDescending(x => x.DateTime) //display all tweets when nothing is checked
+						.Take(8)
+						.ToList();
+				}
+
 			}
 			else
 			{
 				var selectedTags = db.UserTags.Where(x => checkedTags.Contains(x.Name));
 				var users = selectedTags.SelectMany(m => m.Users);
 
-				tweetsToReturn = db.Tweets
-					.Where(x => users.Contains(x.TwitterUser))
-					.OrderByDescending(x => x.DateTime)
-					.Take(8)
-					.ToList();
-			}
-
-			if (!showRetweets)
-			{
-				tweetsToReturn = tweetsToReturn.Where(x => x.IsRetweet == true).ToList();
+				if (!showRetweets)
+				{
+					tweetsToReturn = db.Tweets
+						.Where(x => users.Contains(x.TwitterUser))
+						.Where(x => x.IsRetweet == false)
+						.OrderByDescending(x => x.DateTime)
+						.Take(8)
+						.ToList();
+				}
+				else
+				{
+					tweetsToReturn = db.Tweets
+						.Where(x => users.Contains(x.TwitterUser))
+						.OrderByDescending(x => x.DateTime)
+						.Take(8)
+						.ToList();
+				}
 			}
 
 			ViewBag.tweets = tweetsToReturn;

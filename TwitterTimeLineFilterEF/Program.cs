@@ -14,11 +14,11 @@ namespace TwitterTimeLineFilterEF
 
 		private static async Task MainAsync()
 		{
-			CreateHostBuilder().Build().Run();
 			TwitterData tdObj = new();
 			await tdObj.GetTweets();
 			await tdObj.GetFriends();
 			await tdObj.CleanupTweets();
+			CreateHostBuilder().Build().Run(); //this has to go here otherwise the rest of the code will not be executed.
 		}
 
 		public static IHostBuilder CreateHostBuilder() =>

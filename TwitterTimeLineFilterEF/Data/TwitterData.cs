@@ -91,7 +91,6 @@ namespace TwitterTimeLineFilterEF.Data
 						usr.Name = friend.ScreenName;
 						usr.DisplayName = friend.Name;
 						usr.ProfileImageUrl = friend.ProfileImageUrl;
-						await db.TwitterUsers.AddAsync(usr);
 					}
 				}
 				foreach (var user in db.TwitterUsers) //Delete users no longer followed
